@@ -1,0 +1,40 @@
+Date Collected,
+Sample.ID,
+Region,
+Population,
+MaterNAl_Family,
+Individual,
+B_Number of Stomata,number of stomata on abaxial (B) side of leaf
+B_Max. Length_Stomata1,length of stomata 1 on abaxial (B) side of leaf 
+B_MidWidth_Stomata1,width of stomata 1 on abaxial (B) side of leaf
+B_MidWidth_GuardCell_A_Stomata 1,width of guard cell 1 on stomata 1 on abaxial (B) side of leaf
+B_MidWidth_GuardCell_B_Stomata1,width of guard cell 2 on stomata 1 on abaxial (B) side of leaf
+B_Max. Length_Stomata2,length of stomata 2 on abaxial (B) side of leaf 
+B_MidWidth_Stomata2,width of stomata 2 on abaxial (B) side of leaf
+B_MidWidth_GuardCell_A_Stomata 2,width of guard cell 1 on stomata 2 on abaxial (B) side of leaf
+B_MidWidth_GuardCell_B_Stomata2,width of guard cell 2 on stomata 2 on abaxial (B) side of leaf
+B_Max. Length_Stomata3,length of stomata 3 on abaxial (B) side of leaf 
+B_MidWidth_Stomata3,width of stomata 3 on abaxial (B) side of leaf
+B_MidWidth_GuardCell_A_Stomata3,width of guard cell 1 on stomata 3 on abaxial (B) side of leaf
+B_MidWidth_GuardCell_B_Stomata3,width of guard cell 2 on stomata 3 on abaxial (B) side of leaf
+T_Number of Stomata,number of stomata on adaxial (T) side of leaf
+T_Max. Length_Stomata1,length of stomata 1 on adaxial (T) side of leaf 
+T_MidWidth_Stomata1,width of stomata 1 on adaxial (T) side of leaf
+T_MidWidth_GuardCell_A_Stomata 1,width of guard cell 1 on stomata 1 on adaxial (T) side of leaf
+T_MidWidth_GuardCell_B_Stomata1,width of guard cell 2 on stomata 1 on adaxial (T) side of leaf
+T_Max. Length_Stomata2,length of stomata 2 on adaxial (T) side of leaf 
+T_MidWidth_Stomata2,width of stomata 2 on adaxial (T) side of leaf
+T_MidWidth_GuardCell_A_Stomata 2,width of guard cell 1 on stomata 2 on adaxial (T) side of leaf
+T_MidWidth_GuardCell_B_Stomata2,width of guard cell 2 on stomata 2 on adaxial (T) side of leaf
+T_Max. Length_Stomata3,length of stomata 3 on adaxial (T) side of leaf 
+T_MidWidth_Stomata3,width of stomata 3 on adaxial (T) side of leaf
+T_MidWidth_GuardCell_A_Stomata3,width of guard cell 1 on stomata 3 on adaxial (T) side of leaf
+T_MidWidth_GuardCell_B_Stomata3,width of guard cell 2 on stomata 3 on adaxial (T) side of leaf
+Ratio,number of stomata on adaxial (T) / number of stomata on abaxial (B) 
+Av_GCLengthB,mean of 3 stomata on abaxial (B) leaf
+Av_GCLengthT,mean of 3 stomata on adaxial (T) leaf
+Av_GCLength,mean of 6 stomata (T+B)
+Density_B,number of abaxial (B) stomata / area of view (0.0768)
+Density_T,number of adaxial (T) stomata /area of view (0.0768)
+SAI_B,density B * Av_GCLenghtB
+SAI_T,density T*Av_GCLengthT

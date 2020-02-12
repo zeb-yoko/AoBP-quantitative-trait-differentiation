@@ -1,0 +1,16 @@
+Data Column Header,Definition
+Region,"Source Region (GLA, MBA, PRA)"
+BLOCK.POS,Position in Garden
+Sample.ID,Individual Plant ID
+Family.Unique,Family ID
+Population,Source Population
+Dist.from.CG,Distance from Common Garden
+Area,Leaf Area (cm)
+Length,Leaf Length (cm)
+Fresh mass,Fresh leaf mass (g)
+Dried mass,Dried leaf mass (g)
+SLA,Specific Leaf Area
+Leaf Dry Matter Content,Leaf Dry matter content
+Fluoresence,Chlorophyll Fluoresence ratio (F735nm/F700nm)
+Chlorophyll Content,Chlorophyll Content (mg/m2)
+Conductance,Stomatal Conductance

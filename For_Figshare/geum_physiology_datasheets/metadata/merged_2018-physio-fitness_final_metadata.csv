@@ -1,0 +1,23 @@
+Data Column Header,Definition
+Region,"Source Region (GLA, MBA, PRA)"
+Population,Source Population
+Sample.ID,Individual Plant ID
+dC13,Carbon Isotope Discrimination
+d15N,Nitrogen Isotope differential (not used)
+Block.POS,Position in Garden
+Dist.from.CG,Distance from Common Garden
+SLA,Specific Leaf Area
+Leaf.Dry.Matter.Content,Leaf Dry matter content
+Chlorophyll.Content,Chlorophyll Content (mg/m2)
+Conductance,Stomatal Conductance
+Ratio,Stomatal Ratio (Top to Bottom) (not used)
+Av_GCLengthB,mean of 3 stomata on abaxial (B) leaf
+Av_GCLengthT,mean of 3 stomata on adaxial (T) leaf
+Av_GCLength,mean of 6 stomata (T+B)
+Density_B,number of abaxial (B) stomata / area of view (0.0768)
+Density_T,number of adaxial (T) stomata /area of view (0.0768)
+SAI_B,density B * Av_GCLenghtB
+SAI_T,density T*Av_GCLengthT
+Sinus_Depth,Leaf Sinus Depth
+Mid_Vein_Length,Leaf Midvein Length
+Avg.Leaf.Area,Average Leaf Area (not used)

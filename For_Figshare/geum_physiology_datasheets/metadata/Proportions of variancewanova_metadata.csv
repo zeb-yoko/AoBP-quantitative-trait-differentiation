@@ -1,0 +1,6 @@
+Data Column Header,Definition
+Trait,Physiological Trait
+Population,Proportion of variance explained by source population
+Residual,Proportion of variance unexplained by source population or region
+Region,Proportion of variance explained by source region
+Trait_Class,"Class of trait (physiological = resource allocation, stomatal = stomatal characteristic, and morphological = leaf morphology)"

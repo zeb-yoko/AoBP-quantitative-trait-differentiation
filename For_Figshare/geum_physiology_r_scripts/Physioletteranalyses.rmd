@@ -1,0 +1,687 @@
+---
+title: "Physiology letter analyses"
+author: "Zebadiah G. Yoko"
+date: "April 3, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Statistical Analyses testing if source region and population 
+# have an effect on traits
+
+
+Load necessary libraries
+```{r, results =F, warning = F, message = F}
+library(tidyverse); library(dunn.test)
+library(car); library(lme4);library(rptR); 
+library(lmerTest);  library(emmeans)
+#library(MuMIn); library(psych); library(sjstats); 
+```
+
+Load data
+
+```{r pressure, echo=T}
+#setwd("C:/Users/zippy/OneDrive/NDSU/physiology-git")
+#setwd("C:/Users/Zebadiah/OneDrive/NDSU/physiology-git")
+##load data##
+##datasheet from physiological measures##
+dato <- read.csv("physio-2018.csv")
+##fix import (if necessary)##-I believe fixed in newest version R
+colnames(dato)[1] = "Region"
+##Order Regions by longitude##
+dato$Region<-factor(dato$Region,	levels = c("Prairie","MB_Alvar","GL_Alvar"))
+```
+
+#Chlorophyll Fluorescence
+
+```{r}
+##Remove rows that do not have cfr samples##
+chl.1 <- as.data.frame(dato[-which(is.na(dato$Chlorophyll.Content)==T),])
+nrow(chl.1)
+##data checks##
+shapiro.test(chl.1$Chlorophyll.Content)
+bartlett.test(chl.1$Chlorophyll.Content, g =chl.1$Region)
+#hist(chl.1$Chlorophyll.Content)
+```
+## Model statement
+```{r}
+##Model statement: CFR by Region##
+model.f <- lmer(chl.1$Chlorophyll.Content ~ chl.1$Region + (1|chl.1$Population))
+(random.f <- summary(model.f))
+```
+
+```{r}
+anova(model.f)
+```
+
+
+```{r}
+hist(residuals(model.f))
+```
+Proportion of variance
+pull out the important components, particularly variance and (optionally) CV
+```{r}
+rpt.f <- rptGaussian(formula = Chlorophyll.Content ~ Region + (1|Population), grname = c("Population", "Fixed", "Residual"), data = chl.1, nboot = 1000, ratio = T, adjusted = F)
+rpt.f
+```
+
+```{r}
+##Make a table of R values##
+col.classes = c("character", "numeric", "numeric", "numeric", "character")
+col.names = c("Trait", "Population", "Residual", "Region", "Trait_class")
+prop.v <-read.table(text = "",colClasses = col.classes, col.names =col.names)
+prop.v[1,1] <- "Chlorophyll Content"
+prop.v[1,2:4] <- rpt.f$R
+prop.v[1,5] <- "physiological"
+```
+
+
+
+#Specific Leaf Area (SLA)
+
+```{r}
+##Remove rows that do not have sla samples##
+##No NA's in dataset, just change name##
+sla.1 <- dato
+nrow(sla.1)
+shapiro.test(log(sla.1$SLA))
+bartlett.test(log(sla.1$SLA), g =sla.1$Region)
+#hist(log(sla.1$SLA))
+```
+
+## Model statement
+```{r}
+##log transform for valid Model statement##
+model.s <- lmer(log(sla.1$SLA) ~ sla.1$Region + (1|sla.1$Population))
+(random.s <- summary(model.s))
+```
+
+```{r}
+anova(model.s)
+```
+
+```{r}
+hist(residuals(model.s))
+```
+Repeatability
+pull out the important components, particularly variance and CV
+```{r}
+(rpt.s <- rptGaussian(formula = SLA ~ Region + (1|Population), grname = c("Population", "Fixed", "Residual"), data = sla.1, nboot = 1000, ratio = T, adjusted = F))
+				
+```
+
+```{r}
+##Make a table of R values##
+prop.v[2,1] <- "Specific Leaf Area"
+prop.v[2,2:4] <- rpt.s$R
+prop.v[2,5] <- "physiological"
+```
+
+
+#Leaf Dry Matter Content = LDMC
+
+```{r}
+nrow(sla.1)
+hist(sla.1$Leaf.Dry.Matter.Content)
+shapiro.test(sla.1$Leaf.Dry.Matter.Content)
+bartlett.test(sla.1$Leaf.Dry.Matter.Content, g = sla.1$Region)
+```
+
+##Model statement: LDMC by Region
+```{r}
+model.l <- lmer(sla.1$Leaf.Dry.Matter.Content ~ sla.1$Region + (1|sla.1$Population))
+(random.l <- summary(model.l))
+```
+
+```{r}
+anova(model.l)
+```
+
+Repeatability
+pull out the important components, particularly variance and CV
+```{r}
+(rpt.l <- rptGaussian(formula = Leaf.Dry.Matter.Content ~ Region + (1|Population), grname = c("Population", "Fixed", "Residual"), data = sla.1, nboot = 1000, ratio = T, adjusted = F))
+				
+```
+
+```{r}
+hist(residuals(model.l))
+```
+
+```{r}
+##Add to table of R values##
+prop.v[3,1] <- "Leaf Dry Matter Content"
+prop.v[3,2:4] <- rpt.l$R
+prop.v[3,5] <- "physiological"
+```
+
+# Stomatal Conductance
+```{r}
+##check if NA's present##
+nrow(dato[which(is.na(dato$Conductance)==T),])
+##Remove rows that do not have conductance data##
+cond <- dato[-which(is.na(dato$Conductance)==T),]
+nrow(cond)
+shapiro.test(sqrt(cond$Conductance))
+bartlett.test(sqrt(cond$Conductance), g= cond$Region)
+hist(sqrt(cond$Conductance))
+```
+
+##Model statement: Conductance by Region
+```{r}
+model.c <- lmer(sqrt(cond$Conductance) ~ cond$Region + (1|cond$Population))
+(random.c <- summary(model.c))
+```
+
+```{r}
+anova(model.c)
+```
+
+```{r}
+hist(residuals(model.c))
+```
+
+Repeatability
+pull out the important components, particularly variance and CV
+```{r}
+(rpt.c <- rptGaussian(formula = Conductance ~ Region + (1|Population), grname = c("Population", "Fixed", "Residual"), data = cond, nboot = 1000, ratio = T, adjusted = F))
+				
+```
+
+```{r}
+##Add to table of R values##
+prop.v[4,1] <- "Stomatal Conductance"
+prop.v[4,2:4] <- rpt.c$R
+prop.v[4,5] <- "stomatal"
+```
+
+#Stomata Traits
+From epidermal impressions (Stomata)
+DIFFERENT DATASHEET
+
+```{r, echo =F}
+sto <-read.csv("merged_2018-physio-fitness_final.csv")
+##Order Regions by longitude##
+sto$Region<-factor(sto$Region,	levels = c("Prairie","MB_Alvar","GL_Alvar"))
+```
+
+
+# Stomata Density (Abaxial)
+```{r}
+sto.2 <- sto[-which(is.na(sto$Density_B)==T),]
+nrow(sto.2)
+shapiro.test(sqrt(sto.2$Density_B))
+bartlett.test(sqrt(sto.2$Density_B), sto.2$Region)
+#hist(sqrt(sto$Density_B))
+```
+
+##Model statement
+```{r}
+model.db <- lmer(sqrt(sto.2$Density_B) ~ sto.2$Region + (1|sto.2$Population))
+(random.db <- summary(model.db))
+```
+
+```{r}
+anova(model.db)
+```
+
+```{r}
+hist(residuals(model.db))
+```
+
+Repeatability
+pull out the important components, particularly variance and CV
+```{r}
+(rpt.db <- rptGaussian(formula = Density_B ~ Region + (1|Population), grname = c("Population", "Fixed", "Residual"), data = sto.2, nboot = 1000, npermut = 1000, ratio = T, adjusted = F))
+```
+
+```{r}
+##Add to table of R values##
+prop.v[5,1] <- "Stomatal Density (abaxial)"
+prop.v[5,2:4] <- rpt.db$R
+prop.v[5,5] <- "stomatal"
+```
+
+# Stomata Density (Adaxial)
+```{r}
+sto.2 <- sto[-which(is.na(sto$Density_T)==T),]
+nrow(sto.2)
+shapiro.test(sqrt(sto$Density_T))
+bartlett.test(sqrt(sto$Density_T), g = sto$Region)
+#hist(sqrt(sto$Density_T))
+```
+
+##Model statement
+```{r}
+model.dt <- lmer(sqrt(sto.2$Density_T) ~ sto.2$Region + (1|sto.2$Population))
+(random.dt <- summary(model.dt))
+```
+
+```{r}
+anova(model.dt)
+```
+
+```{r}
+hist(residuals(model.dt))
+```
+
+Repeatability
+pull out the important components, particularly variance and CV
+```{r}
+(rpt.dt <- rptGaussian(formula = Density_T ~ Region + (1|Population), grname = c("Population", "Fixed", "Residual"), data = sto.2, nboot = 1000, ratio = T, adjusted = F))
+```
+
+```{r}
+##Add to table of R values##
+prop.v[6,1] <- "Stomatal Density (adaxial)"
+prop.v[6,2:4] <- rpt.dt$R
+prop.v[6,5] <- "stomatal"
+```
+
+# Stomatal Size (Abaxial)
+measured by guard cell Length_B
+```{r}
+##check if NA's present##
+nrow(sto[which(is.na(sto$Av_GCLengthB)==T),])
+##Remove rows IF NAs present##
+stoSizeB <- sto[-which(is.na(sto$Av_GCLengthB)==T),]
+nrow(stoSizeB)
+shapiro.test(stoSizeB$Av_GCLengthB)
+bartlett.test(stoSizeB$Av_GCLengthB, stoSizeB$Region)
+#hist(stoSizeB$Av_GCLengthB)
+```
+##Model statement
+```{r}
+model.rb <- lmer(stoSizeB$Av_GCLengthB ~ stoSizeB$Region + (1|stoSizeB$Population))
+(random.rb <- summary(model.rb))
+```
+
+```{r}
+anova(model.rb)
+```
+
+```{r}
+hist(residuals(model.rb))
+```
+
+Repeatability
+pull out the important components, particularly variance and CV
+```{r}
+(rpt.rb <- rptGaussian(formula = Av_GCLengthB ~ Region + (1|Population), grname = c("Population", "Fixed", "Residual"), data = stoSizeB, nboot = 1000, ratio = T, adjusted = F))
+```
+
+```{r}
+##Add to table of R values##
+prop.v[7,1] <- "Stomatal Size (abaxial)"
+prop.v[7,2:4] <- rpt.rb$R
+prop.v[7,5] <- "stomatal"
+```
+
+# Stomatal Size (Adaxial)
+measured by guard cell LengthT
+```{r}
+##check if NA's present##
+nrow(sto[which(is.na(sto$Av_GCLengthT)==T),])
+##Remove rows IF NAs present##
+stoSizeT<- sto[-which(is.na(sto$Av_GCLengthT)==T),]
+shapiro.test(stoSizeT$Av_GCLengthT)
+bartlett.test(stoSizeT$Av_GCLengthT, stoSizeT$Region)
+nrow(stoSizeT)
+#hist(stoSizeT$Av_GCLengthT)
+```
+
+##Model statement
+```{r}
+model.rt <- lmer(stoSizeT$Av_GCLengthT ~ stoSizeT$Region + (1|stoSizeT$Population))
+(random.rt <- summary(model.rt))
+```
+
+```{r}
+anova(model.rt)
+```
+
+```{r}
+hist(residuals(model.rt))
+```
+
+Repeatability
+pull out the important components, particularly variance and CV
+```{r}
+(rpt.rt <- rptGaussian(formula = Av_GCLengthT ~ Region + (1|Population), grname = c("Population", "Fixed", "Residual"), data = stoSizeT, nboot = 1000, ratio = T, adjusted = F))
+```
+
+```{r}
+##Add to table of R values##
+prop.v[8,1] <- "Stomatal Size (adaxial)"
+prop.v[8,2:4] <- rpt.rt$R
+prop.v[8,5] <- "stomatal"
+```
+
+#Stomata Area Index_B
+```{r}
+##check if NA's present##
+nrow(sto[which(is.na(sto$SAI_B)==T),])
+##Remove rows IF NAs present##
+sto.aib <- sto[-which(is.na(sto$SAI_B)==T),]
+nrow(sto.aib)
+shapiro.test(sqrt(sto.aib$SAI_B))
+bartlett.test(sqrt(sto.aib$SAI_B), sto.aib$Region)
+#hist(sqrt(sto.aib$SAI_B))
+```
+
+##Model statement
+```{r}
+model.aib <- lmer(sqrt(sto.aib$SAI_B) ~ sto.aib$Region + (1|sto.aib$Population))
+(random.aib <- summary(model.aib))
+```
+
+```{r}
+anova(model.aib)
+```
+
+```{r}
+hist(residuals(model.aib))
+```
+
+Repeatability
+pull out the important components, particularly variance and CV
+```{r}
+(rpt.aib <- rptGaussian(formula = SAI_B ~ Region + (1|Population), grname = c("Population", "Fixed", "Residual"), data = sto.aib, nboot = 1000, ratio = T, adjusted = F))
+				
+```
+
+```{r}
+##Add to table of R values##
+prop.v[9,1] <- "SAI (abaxial)"
+prop.v[9,2:4] <- rpt.aib$R
+prop.v[9,5] <- "stomatal"
+```
+
+#Stomata Area Index_T
+```{r}
+##check if NA's present##
+nrow(sto[which(is.na(sto$SAI_T)==T),])
+##Remove rows IF NAs present##
+sto.ait <- sto[-which(is.na(sto$SAI_T)==T),]
+nrow(sto.ait)
+shapiro.test(sqrt(sto.ait$SAI_T))
+bartlett.test(sqrt(sto.ait$SAI_T), sto.ait$Region)
+#hist(sqrt(sto.ait$SAI_T))
+```
+
+##Model statement
+```{r}
+model.ait <- lmer(sqrt(sto.ait$SAI_T) ~ sto.ait$Region + (1|sto.ait$Population))
+(random.ait <- summary(model.ait))
+```
+
+```{r}
+anova(model.ait)
+```
+
+```{r}
+hist(residuals(model.ait))
+```
+
+Repeatability
+pull out the important components, particularly variance and CV
+```{r}
+(rpt.ait <- rptGaussian(formula = SAI_T ~ Region + (1|Population), grname = c("Population", "Fixed", "Residual"), data = sto.ait, nboot = 1000, ratio = T, adjusted = F))
+```
+
+
+```{r}
+##Add to table of R values##
+prop.v[10,1] <- "SAI (adaxial)"
+prop.v[10,2:4] <- rpt.ait$R
+prop.v[10,5] <- "stomatal"
+```
+
+# Isotope Data
+```{r}
+CIC <-read.csv("merged_2018-physio-fitness_final.csv")
+```
+# Carbon Isotope Discrimination
+```{r}
+nrow(CIC[which(is.na(CIC$dC13)==T),])
+CIC<-CIC[-which(is.na(CIC$dC13)==T),]
+shapiro.test(CIC$dC13)
+bartlett.test(CIC$dC13, CIC$Region)
+#hist(CIC$dC13)
+```
+
+##Model statement
+```{r}
+model.cic <-lmer(CIC$dC13 ~ CIC$Region + (1|CIC$Population))
+(random.cic <- summary(model.cic))
+```
+
+```{r}
+anova(model.cic)
+```
+
+```{r}
+hist(residuals(model.cic))
+```
+
+Repeatability
+pull out the important components, particularly variance and CV
+```{r}
+(rpt.cic <- rptGaussian(formula = dC13 ~ Region + (1|Population), grname = c("Population", "Fixed", "Residual"), data = CIC, nboot = 1000, ratio = T, adjusted = F))
+```
+
+```{r}
+##Add to table of R values##
+prop.v[11,1] <- "dC13 isotope"
+prop.v[11,2:4] <- rpt.cic$R
+prop.v[11,5] <- "physiological"
+```
+
+# Morphological Traits
+Different datasheet
+*hypothesized to be adaptively neutral--not using this terminology
+```{r}
+df <- read.csv("NV_Leaf_Morphology.csv")
+##Fix first column (if necessary)##
+colnames(df)[1] = "Sample_ID"
+colnames(df)[7] = "Region"
+df <- df[,1:17]
+##Order Regions by longitude NOTE DIFFERENT LEVELS#####   v        v  
+df$Region<-factor(df$Region,	levels = c("Prairie","MB_Alvar","GL_Alvar"))
+```
+
+#Sinus Depth
+```{r}
+nrow(df[which(is.na(df$Sinus_Depth)==T),])
+##Remove rows IF NAs present##
+df1 <- df[-which(is.na(df$Sinus_Depth)==T),]
+nrow(df1)
+shapiro.test(sqrt(df1$Sinus_Depth))
+bartlett.test(sqrt(df1$Sinus_Depth), g = df1$Region)
+#hist(sqrt(df1$Sinus_Depth))
+```
+
+##Model statement
+```{r}
+model.sd <- lmer(sqrt(df1$Sinus_Depth)~df1$Region + (1|df1$Population))
+(random.sd <- summary(model.sd))
+```
+
+```{r}
+anova(model.sd)
+```
+
+```{r}
+hist(residuals(model.sd))
+```
+
+Repeatability
+pull out the important components, particularly variance and CV
+```{r}
+(rpt.sd <- rptGaussian(formula = Sinus_Depth ~ Region + (1|Population), grname = c("Population", "Fixed", "Residual"), data = df1, nboot = 1000, ratio = T, adjusted = F))
+```
+
+```{r}
+##Add to table of R values##
+prop.v[12,1] <- "Sinus Depth"
+prop.v[12,2:4] <- rpt.sd$R
+prop.v[12,5] <- "morphological"
+```
+
+#Mid Vein Length
+```{r}
+##check if NA's present##
+nrow(df[which(is.na(df$Mid_Vein_Length)==T),])
+##Remove rows IF NAs present##
+df1 <- df[-which(is.na(df$Mid_Vein_Length)==T),]
+nrow(df1)
+shapiro.test(sqrt(df1$Mid_Vein_Length))
+bartlett.test(sqrt(df1$Mid_Vein_Length),df1$Region)
+leveneTest(sqrt(df1$Mid_Vein_Length),df1$Region)
+#hist(sqrt(df1$Mid_Vein_Length))
+```
+
+##Model statement
+```{r}
+model.mv <- lmer(sqrt(df1$Mid_Vein_Length)~df1$Region + (1|df1$Population))
+(random.mv <- summary(model.mv))
+```
+
+```{r}
+anova(model.mv)
+```
+
+```{r}
+hist(residuals(model.mv))
+```
+
+Repeatability
+pull out the important components, particularly variance and CV
+```{r}
+(rpt.mv <- rptGaussian(formula = Mid_Vein_Length ~ Region + (1|Population), grname = c("Population", "Fixed", "Residual"), data = df1, nboot = 1000, ratio = T, adjusted = F))
+```
+
+```{r}
+##Add to table of R values##
+prop.v[13,1] <- "Midvein Length"
+prop.v[13,2:4] <- rpt.mv$R
+prop.v[13,5] <- "morphological"
+```
+
+#Presence of mini leaflets
+```{r}
+#mini leaflets?
+nrow(df[which(is.na(df$Mini_Leaflets_YN)==T),])
+##Remove rows IF NAs present##
+df1 <- df[-which(is.na(df$Mini_Leaflets_YN)==T),]
+nrow(df1)
+```
+
+##Model statement
+```{r}
+##binomial data##
+model.ml <- glmer(Mini_Leaflets_YN~Region + (1|Population), data = df1, family = binomial(link = logit))
+(random.ml <- summary(model.ml))
+hist(residuals(model.ml))
+```
+
+```{r}
+anova(model.ml)
+```
+
+#Repeatability
+#pull out the important components, particularly variance and CV
+```{r}
+rpt.ml <- rptBinary(formula = Mini_Leaflets_YN ~ Region + (1|Population), 
+						  grname = c("Population", "Fixed", "Residual"), 
+						  data = df1, link = "logit", nboot = 1000, ratio = T, adjusted = F)
+rpt.ml
+
+```
+
+```{r}
+##Add to table of R values##
+prop.v[14,1] <- "Presence of mini leaflets"
+prop.v[14,2:4] <- rpt.ml$R[1,]
+prop.v[14,5] <- "morphological"
+```
+
+#Are mini leaflets lobed?
+
+```{r}
+##Opposite leaflets?##
+nrow(df[which(is.na(df$MiniLeaflet_Lobed_YN)==T),])
+##Remove rows IF NAs present##
+df1 <- df[-which(is.na(df$MiniLeaflet_Lobed_YN)==T),]
+summary(df1$MiniLeaflet_Lobed_YN)
+```
+
+##Model statement
+```{r}
+model.ll <- glmer(MiniLeaflet_Lobed_YN~Region + (1|Population),
+						data = df1, family = binomial(link = logit))
+(random.ll <- summary(model.ll))
+```
+
+```{r}
+anova(model.ll)
+```
+
+```{r}
+hist(residuals(model.ll))
+
+```
+
+#Repeatability
+#pull out the important components, particularly variance and CV
+```{r}
+rpt.ll <- rptBinary(formula = MiniLeaflet_Lobed_YN ~ Region + (1|Population), 
+						  grname = c("Population", "Fixed", "Residual"), 
+						  data = df1, link = "logit", nboot = 1000, ratio = T, adjusted = F)
+rpt.ll
+rpt.ll$R[1,]
+```
+
+```{r}
+##Add to table of R values##
+prop.v[15,1] <- "Lobed minileaflets"
+prop.v[15,2:4] <- rpt.ll$R[1,]
+prop.v[15,5] <- "morphological"
+```
+##write table
+```{r}
+write.csv(prop.v, "Proportions of variancewanova.csv", row.names =F)
+```
+
+##Difference by trait class?
+```{r}
+##Region first##
+df<- as.data.frame(prop.v)
+df<- read.csv("Proportions of variancewanova.csv")
+df<-as.data.frame(df)
+df <- droplevels(df[-which(df$Trait =="Stomatal Conductance"),])
+View(df)
+shapiro.test(df$Region)
+bartlett.test(df$Region, g=df$Trait_class)
+##data fails bartlett.test, run Dunn.test##
+ar <- aov(Region~Trait_class, data = df)
+anova(ar)
+TukeyHSD(ar)
+dunn.test(x= df$Region, g=df$Trait_class, kw = T, altp = T, method ="BH")
+```
+
+#Population
+```{r}
+##Population next##
+shapiro.test(df$Population)
+bartlett.test(df$Population, g=df$Trait_class)
+ap <- aov(Population~Trait_class, data = df)
+anova(ap)
+df$Trait_class <- as.factor(df$Trait_class)
+kruskal.test(x=df$Population,g =df$Trait_class)
+#dunn.test(x= df$Population, g=df$Trait_class, kw = F)
+```
+
